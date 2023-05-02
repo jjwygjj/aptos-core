@@ -7,18 +7,11 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 # Fungible Asset
 
-Fungible assets (FA) are an essential part of the Aptos ecosystem, as they enable the creation and transfer of fungible
-units, which can represent different things, such as currency, shares, material in games, or any other type of asset.
-Fungible assets can be used to build decentralized applications that require a token economy, such as decentralized
-exchanges or gaming platforms.
+Fungible assets (FA) are an essential part of the Aptos ecosystem, as they enable the creation and transfer of fungible units, which can represent different assets, such as currency, shares, material in games, or many other types of assets. Furthermore, fungible assets can be used to build decentralized applications that require a token economy, such as decentralized exchanges or gaming platforms.
 
-[Fungible asset module](https://github.com/aptos-labs/aptos-core/blob/main/aptos-move/framework/aptos-framework/sources/fungible_asset.move)
-provides a standard, typesafe framework for assets with fungibility.
+The [fungible asset module](https://github.com/aptos-labs/aptos-core/blob/main/aptos-move/framework/aptos-framework/sources/fungible_asset.move) provides a standard, type-safe framework for defining fungible assets within the Aptos Move ecosystem.
 
-In this standard, fungible assets are stored in `Object<FungibleStore>` that has a specific amount of units, which
-can be transferred, burned, or minted. Fungible assets are units that are interchangeable with others of the same
-metadata. The standard is built upon object model so all the resources defined here are included in object resource
-group and stored inside objects.
+In this standard, fungible assets are stored in `Object<FungibleStore>` that has a specific amount of units. Fungible assets are units that are interchangeable with others of the same metadata. The standard is built upon object model so all the resources defined here are included in object resource group and stored inside objects. The fungible assets within an object can be divided into smaller units creating new stores without creating new units. Similarly they can be combined to aggregate units into fewer objects. The standard also supports minting new units and burning existing units with appropriate controls.
 
 The relationship between the structures laid out in this standard is shown in this diagram.
 <div style={{textAlign: "center"}}>
@@ -33,14 +26,15 @@ sources={{
 
 ## Difference with Aptos Coin
 
-FA is a broader category than just coins. While fungible coins are just one possible use case of FA, it can represent a wider range of fungible items, such as in-game assets, event tickets, and more. FA is constructed using an object model, which provides the flexibility for customizable, detailed management and offers a new programming model based on objects."
-The final goal of FA is to replace Aptos coin.
+FA is a broader category than just coins. While fungible coins are just one possible use case of FA, it can represent a wider range of fungible items, such as in-game assets like gems or rocks, event tickets, and partial ownership of real-world assets. FA is constructed using an object model, which provides the flexibility for customizable, detailed management and offers a new programming model based on objects.
+
+Minimally, Aptos coin should be interchangeable with FA, it is up to the will of the ecosystem to dictate the whether or not Aptos coin is replaced by a FA equivalent.
 
 ## Structures
 
 ### Metadata Object
 
-FA metadata defines the type of FA. A metadata is defined in Move as:
+Within FA, metadata defines attributes of the type and other common features. The type, itself, is defined by the Object or address where this information lies. In other words, two assets with identical metadata but distinct Objects are not the same. The metadata layout is defined as:
 
 ```rust
 #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
@@ -58,16 +52,9 @@ struct Metadata has key {
 }
 ```
 
-:::tip
-This refers to a type system that uses metadata to differentiate between different types, much like CoinType in a coin standard. However, in this system, even if two metadata objects are exactly the same, they represent two distinct types rather than just one.
-:::
-
-A Coin uses the `CoinType` to support re-usability of the Coin framework for distinct Coins. For example, `Coin<A>`
-and `Coin<B>` are two distinct coins.
-
 ### Fungible Asset and Fungible Store
 
-Since metadata is specified, FA could be defined as follows:
+FA allows typing to be decoupled from metadata by allocating an object reference that points at the metadata. Hence a set of units of FA is represented as an amount and a reference to the metadata, as shown:
 
 ```rust
 struct FungibleAsset {
@@ -76,10 +63,9 @@ struct FungibleAsset {
 }
 ```
 
-Simple, right? An object representing the type and the amount of units held. It is noted that it does not have any
-abilities, so it can be passed from one function to another but has to be deposited back into a fungible store
-at the end of the transaction. In other words, it must be consumed and cannot be
-directly stored anywhere. But how to store it? Here comes `FungibleStore` for storing them in objects:
+In contrast to Objects and addresses, a Coin uses a generic, or the `CoinType`, to support distinct typing within the Coin framework. For example, `Coin<A>` and `Coin<B>` are two distinct coins, if `A != B`.
+
+The fungible assets is a struct representing the type and the amount of units held. As the struct does not have either key or store abilities, it can only be passed from one function to another but must be consumed by the end of a transaction. Specifically, it must be deposited back into a fungible store at the end of the transaction:
 
 ```rust
 #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
@@ -89,18 +75,15 @@ directly stored anywhere. But how to store it? Here comes `FungibleStore` for st
     /// The balance of the fungible metadata.
     balance: u64,
     /// Fungible Assets transferring is a common operation, this allows for freezing/unfreezing accounts.
-    allow_ungated_balance_transfer: bool,
+    frozen: bool,
 }
 ```
 
-The only extra field added here is `allow_ungated_balance_transfer`. if it is `true`, this object is frozen, i.e.
-deposit and withdraw are both disabled without using `TransferRef` in the next section.
+The only extra field added here is `frozen`. if it is `true`, this object is frozen, i.e. deposit and withdraw are both disabled without using `TransferRef` in the next section.
 
 ### References
 
-Reference(ref) is the means to implement permission control across different standard in Aptos. In different contexts,
-it may be called capabilities sometimes. In FA standard, there are three refs for Mint, Transfer and Burn operations on
-FA of the same metadata specified in the ref struct.
+Reference(ref) is the means to implement permission control across different standard in Aptos. In different contexts, it may be called capabilities sometimes. In FA standard, there are three distinct refs one each for minting, transferring, and burning FA respectively called `MintRef`, `TransferRef`, and `BurnRef`. Each ref contains a reference to the FA metadata:
 
 ```rust
 struct MintRef has drop, store {
@@ -116,55 +99,17 @@ struct BurnRef has drop, store {
 }
 ```
 
-- `MintRef` offers the capability to mint FA.
-- `TransferRef` offers the capability to mutate the value of `allow_ungated_balance_transfer` in any
-  `FungbibleStore` of the same metadata or transfer FA by ignoring `allow_ungated_balance_transfer`.
-- `MintRef` offers the capability to mint FA.
-
-The three refs collectively act as the building blocks of various permission control system as they have `store` so
-can be passed around and stored anywhere. Please refer to the source file for `mint()`, `mint_to()`, `burn()`,
-`burn_from()`, `withdraw_with_ref()`, `deposit_with_ref()`, and `transfer_with_ref()`: These functions are used to
-mint, burn, withdraw, deposit, and transfer FA using the MintRef, BurnRef, and TransferRef.
-
-It is worth noting that these functions are only a part of a larger smart contract system, and they need to be  
-integrated with other functions and modules to create a complete system. Developers who want to use these functions  
-should familiarize themselves with the smart contract system they are working with and ensure that they understand  
-how these functions fit into the larger architecture.
-
-### Creators
-
-FA creators can:
-
-- Initialize a FA metadata object based on which FA can be minted.
-
-```rust
-public fun add_fungibility(
-    constructor_ref: &ConstructorRef,
-    monitoring_supply_with_maximum: Option<Option<u128>>,
-    name: String,
-    symbol: String,
-    decimals: u8,
-): Object<Metadata>
-```
-
-### Ref Owners (Managers)
-
 Ref owners can do the following operations depending on the refs they own:
 
-- Mint (to account) and/or burn (from account).
-- Modify `allow_ungated_balance_transfer` of any `FungibleStore` with the same metadata object.
-- Transfer FA ignoring `allow_ungated_balance_transfer`.
+- `MintRef` offers the capability to mint new FA units.
+- `TransferRef` offers the capability to mutate the value of `freeze` in any `FungbibleStore` of the same metadata or transfer FA by ignoring `freeze`.
+- `BurnRef` offers the capability to burn or delete FA units.
 
-### Users
+The three refs collectively act as the building blocks of various permission control system as they have `store` so can be passed around and stored anywhere. Please refer to the source file for `mint()`, `mint_to()`, `burn()`, `burn_from()`, `withdraw_with_ref()`, `deposit_with_ref()`, and `transfer_with_ref()`: These functions are used to mint, burn, withdraw, deposit, and transfer FA using the MintRef, BurnRef, and TransferRef.
 
-Coin users can:
+Note, these are framework functions and must be combined with business logic to produce a usable system. Developers who want to use these functions should familiarize themselves with the concepts of Aptos object model and understand how the reference system enables extensible designs within Aptos move.
 
-- Merging two FAs of the same metadata object.
-- Extracting FA from a fungible store into another.
-- Ability to deposit and withdraw from a `FungibleStore` and emit events as a result.
-- Allows for users to register a `CoinStore<CoinType>` in their account to handle coin.
-
-### Creating
+### Creators
 
 A FA creator can add fungibility to any object at creation by taking `&ConstructorRef` with required information to
 make that object a metadata of the associated FA. Then FA of this metadata can be minted and used.
@@ -188,6 +133,15 @@ monitored. The following applies:
 - Monitoring supply (`monitor_supply`) helps track total FA in supply. However, due to the way the parallel executor
   works, turning on this option will prevent any parallel execution of mint and burn. If the coin will be regularly
   minted or burned, consider disabling `monitor_supply`.
+
+### Users
+
+Coin users can:
+
+- Merging two FAs of the same metadata object.
+- Extracting FA from a fungible store into another.
+- Ability to deposit and withdraw from a `FungibleStore` and emit events as a result.
+- Allows for users to register a `CoinStore<CoinType>` in their account to handle coin.
 
 ### Primitives
 
@@ -221,22 +175,22 @@ from an account first and then burn the fa withdrawn as a helper.
 
 `TransferRef` has two functions:
 
-- Flip `ungated_balance_transfer_allowed` in `FungibleStore` holding FA of the same metadata in the `TransferRef`. if
+- Flip `frozen` in `FungibleStore` holding FA of the same metadata in the `TransferRef`. if
   it is false, the store is "frozen" that nobody can deposit to or withdraw from this store without using the ref.
-- Withdraw from or deposit to a store ignoring its `ungated_balance_transfer_allowed`.
+- Withdraw from or deposit to a store ignoring `frozen` field.
 
-To change `ungated_balance_transfer_allowed`, call:
+To change `frozen`, call:
 
 ```rust
-public fun set_ungated_transfer<T: key>(
+public fun set_frozen_flag<T: key>(
     ref: &TransferRef,
     store: Object<T>,
-    allow: bool,
-) acquires FungibleStore, FungibleAssetEvents
+    frozen: bool,
+)
 ```
 
 :::tip
-This function will emit a `SetUngatedBalanceTransferEvent`.
+This function will emit a `FrozenEvent`.
 :::
 
 To forcibly withdraw, call:
@@ -296,8 +250,7 @@ through `destroy_zero()` in the module.
 
 #### Withdraw
 
-The owner of a `FungibleStore` object can extract FA with a specified amount if `ungated_balance_transfer_allowed` is
-true, by calling:
+The owner of a `FungibleStore` object that is not frozen can extract FA with a specified amount, by calling:
 
 ```rust
 public fun withdraw<T: key>(owner: &signer, store: Object<T>, amount: u64): FungibleAsset
@@ -309,7 +262,7 @@ This function will emit a `WithdrawEvent`.
 
 #### Deposit
 
-Any entity can deposit FA into a `FungibleStore` object if `ungated_balance_transfer_allowed` is true, by calling:
+Any entity can deposit FA into a `FungibleStore` object that is not frozen, by calling:
 
 ```rust
 public fun deposit<T: key>(store: Object<T>, fa: FungibleAsset)
@@ -321,8 +274,7 @@ This function will emit a `DepositEvent`.
 
 #### Transfer
 
-The owner of a `CoinStore` can directly transfer FA from that store to another if `ungated_balance_transfer_allowed`
-is true by calling:
+The owner of a `FungibleStore` can directly transfer FA from that store to another if neither is frozen by calling:
 
 ```rust
 public entry fun transfer<T: key>(sender: &signer, from: Object<T>, to: Object<T>, amount: u64)
@@ -420,10 +372,10 @@ To check the balance of a primary store, call:
 public fun balance<T: key>(account: address, metadata: Object<T>): u64
 ```
 
-To check the value of `ungated_balance_transfer_allowed`, call:
+To check whether the given account's primary store is frozen, call
 
 ```rust
- public fun ungated_balance_transfer_allowed<T: key>(account: address, metadata: Object<T>): bool
+public fun is_frozen<T: key>(account: address, metadata: Object<T>): bool
 ```
 
 ### Withdraw
