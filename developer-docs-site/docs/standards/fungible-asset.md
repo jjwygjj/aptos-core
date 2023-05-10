@@ -28,13 +28,13 @@ sources={{
 
 FA is a broader category than just coins. While fungible coins are just one possible use case of FA, it can represent a wider range of fungible items, such as in-game assets like gems or rocks, event tickets, and partial ownership of real-world assets. FA is constructed using an object model, which provides the flexibility for customizable, detailed management and offers a new programming model based on objects.
 
-Minimally, Aptos coin should be interchangeable with FA, it is up to the will of the ecosystem to dictate the whether or not Aptos coin is replaced by a FA equivalent.
+Minimally, [Aptos coin](./aptos-coin.md) should be interchangeable with FA, it is up to the will of the ecosystem to dictate whether or not Aptos coin is replaced by a FA equivalent.
 
 ## Structures
 
 ### Metadata Object
 
-Within FA, metadata defines attributes of the type and other common features. The type, itself, is defined by the Object or address where this information lies. In other words, two assets with identical metadata but distinct Objects are not the same. The metadata layout is defined as:
+Within FA, metadata defines attributes of the type and other common features. The type itself is defined by the Object or address where this information lies. In other words, two assets with identical metadata but distinct Objects are not the same. The metadata layout is defined as:
 
 ```rust
 #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
@@ -83,7 +83,7 @@ The only extra field added here is `frozen`. if it is `true`, this object is fro
 
 ### References
 
-Reference(ref) is the means to implement permission control across different standard in Aptos. In different contexts, it may be called capabilities sometimes. In FA standard, there are three distinct refs one each for minting, transferring, and burning FA respectively called `MintRef`, `TransferRef`, and `BurnRef`. Each ref contains a reference to the FA metadata:
+_Reference_ (ref) is the means to implement permission control across different standards in Aptos. In different contexts, it may be called _capabilities_. The FA standard has three distinct refs for minting, transferring, and burning FA: `MintRef`, `TransferRef`, and `BurnRef`. Each ref contains a reference to the FA metadata:
 
 ```rust
 struct MintRef has drop, store {
@@ -138,10 +138,10 @@ monitored. The following applies:
 
 Coin users can:
 
-- Merging two FAs of the same metadata object.
-- Extracting FA from a fungible store into another.
-- Ability to deposit and withdraw from a `FungibleStore` and emit events as a result.
-- Allows for users to register a `CoinStore<CoinType>` in their account to handle coin.
+- Merge two FAs of the same metadata object.
+- Extract FA from a fungible store into another.
+- Deposit and withdraw from a `FungibleStore` and emit events as a result.
+- Register a `CoinStore<CoinType>` in their account to handle coin.
 
 ### Primitives
 
@@ -150,14 +150,14 @@ to be stored in global storage to be used later.
 
 #### Mint
 
-If the manager would like to mint FA, they must retrieve a reference to `MintRef`, and call:
+If the manager would like to mint FA, they must retrieve a reference to `MintRef` and call:
 
 ```rust
 public fun mint(ref: &MintRef, amount: u64): FungibleAsset
 ```
 
 This will produce a new FA of the metadata in the ref, containing a value as dictated by the `amount`. If supply is
-tracked, then it will also be adjusted. There is also a `mint_to` function that also deposits to a `FungibleStore`
+tracked, then it will also be adjusted. Also, there is a `mint_to` function that deposits to a `FungibleStore`
 after minting as a helper.
 
 #### Burn
@@ -168,8 +168,8 @@ The opposite operation of minting. Likewise, a reference to `BurnRef` is require
 public fun burn(ref: &BurnRef, fa: FungibleAsset)
 ```
 
-This will reduce the passed-in `fa` to ashes as your will. There is also a `burn_from` function that forcibly withdraws
-from an account first and then burn the fa withdrawn as a helper.
+This will reduce the passed-in `fa` to ashes. There is also a `burn_from` function that forcibly withdraws FA
+from an account first and then burns the withdrawn FA as a helper.
 
 #### Transfer and Freeze/Unfreeze
 
@@ -207,7 +207,7 @@ public fun withdraw_with_ref<T: key>(
 This function will emit a `WithdrawEvent`.
 :::
 
-To forcibly deposit, call
+To forcibly deposit, call:
 
 ```rust
 public fun deposit_with_ref<T: key>(
@@ -372,7 +372,7 @@ To check the balance of a primary store, call:
 public fun balance<T: key>(account: address, metadata: Object<T>): u64
 ```
 
-To check whether the given account's primary store is frozen, call
+To check whether the given account's primary store is frozen, call:
 
 ```rust
 public fun is_frozen<T: key>(account: address, metadata: Object<T>): bool
