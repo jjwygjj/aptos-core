@@ -7,7 +7,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 # Fungible Asset
 
-Fungible assets (FA) are an essential part of the Aptos ecosystem, as they enable the creation and transfer of fungible units, which can represent different assets, such as currency, shares, material in games, or many other types of assets. Furthermore, fungible assets can be used to build decentralized applications that require a token economy, such as decentralized exchanges or gaming platforms.
+Fungible assets (FAs) are an essential part of the Aptos ecosystem, as they enable the creation and transfer of fungible units, which can represent different assets, such as currency, shares, material in games, or many other types of assets. Furthermore, fungible assets can be used to build decentralized applications that require a token economy, such as decentralized exchanges or gaming platforms.
 
 The [fungible asset module](https://github.com/aptos-labs/aptos-core/blob/main/aptos-move/framework/aptos-framework/sources/fungible_asset.move) provides a standard, type-safe framework for defining fungible assets within the Aptos Move ecosystem.
 
