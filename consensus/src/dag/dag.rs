@@ -5,7 +5,10 @@ use crate::{
     dag::{anchor_election::AnchorElection, bullshark::Bullshark},
     payload_manager::PayloadManager,
 };
-use aptos_consensus_types::{node::{CertifiedNode, CertifiedNodeRequest, NodeMetaData}, block::Block};
+use aptos_consensus_types::{
+    block::Block,
+    node::{CertifiedNode, CertifiedNodeRequest, NodeMetaData},
+};
 use aptos_crypto::HashValue;
 use aptos_logger::info;
 use aptos_types::{block_info::Round, validator_verifier::ValidatorVerifier, PeerId};
@@ -340,6 +343,7 @@ pub(crate) struct Dag {
     missing_nodes: HashMap<HashValue, MissingDagNodeStatus>,
     // Arc to something that returns the anchors
     proposer_election: Arc<dyn AnchorElection>,
+    // FIXME(ibalajiarun): Remove this Arc Mutex
     bullshark: Arc<Mutex<Bullshark>>,
     verifier: ValidatorVerifier,
     payload_manager: Arc<PayloadManager>,
