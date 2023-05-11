@@ -35,6 +35,7 @@ pub enum FeatureFlag {
     PeriodicalRewardRateReduction,
     PartialGovernanceVoting,
     SignatureCheckerV2,
+    DelegationPoolPartialGovernanceVoting,
 }
 
 fn generate_features_blob(writer: &CodeWriter, data: &[u64]) {
@@ -148,6 +149,9 @@ impl From<FeatureFlag> for AptosFeatureFlag {
             },
             FeatureFlag::PartialGovernanceVoting => AptosFeatureFlag::PARTIAL_GOVERNANCE_VOTING,
             FeatureFlag::SignatureCheckerV2 => AptosFeatureFlag::SIGNATURE_CHECKER_V2,
+            FeatureFlag::DelegationPoolPartialGovernanceVoting => {
+                AptosFeatureFlag::DELEGATION_POOL_PARTIAL_GOVERNANCE_VOTING
+            },
         }
     }
 }
@@ -186,6 +190,9 @@ impl From<AptosFeatureFlag> for FeatureFlag {
             },
             AptosFeatureFlag::PARTIAL_GOVERNANCE_VOTING => FeatureFlag::PartialGovernanceVoting,
             AptosFeatureFlag::SIGNATURE_CHECKER_V2 => FeatureFlag::SignatureCheckerV2,
+            AptosFeatureFlag::DELEGATION_POOL_PARTIAL_GOVERNANCE_VOTING => {
+                FeatureFlag::DelegationPoolPartialGovernanceVoting
+            },
         }
     }
 }

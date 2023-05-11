@@ -174,12 +174,20 @@ module std::features {
         is_enabled(PERIODICAL_REWARD_RATE_DECREASE)
     }
 
-    /// Whether enable paritial governance voting.
+    /// Whether enable paritial governance voting on aptos_governance.
     /// Lifetime: transient
     const PARTIAL_GOVERNANCE_VOTING: u64 = 17;
     public fun get_partial_governance_voting(): u64 { PARTIAL_GOVERNANCE_VOTING }
     public fun partial_governance_voting_enabled(): bool acquires Features {
         is_enabled(PARTIAL_GOVERNANCE_VOTING)
+    }
+
+    /// Whether enable paritial governance voting on delegation_pool.
+    /// Lifetime: transient
+    const DELEGATION_POOL_PARTIAL_GOVERNANCE_VOTING: u64 = 19;
+    public fun get_delegation_pool_partial_governance_voting(): u64 { DELEGATION_POOL_PARTIAL_GOVERNANCE_VOTING }
+    public fun delegation_pool_partial_governance_voting_enabled(): bool acquires Features {
+        is_enabled(DELEGATION_POOL_PARTIAL_GOVERNANCE_VOTING)
     }
 
     // ============================================================================================
