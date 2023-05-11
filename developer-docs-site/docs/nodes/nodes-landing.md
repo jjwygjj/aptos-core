@@ -124,7 +124,7 @@ Also learn how to run a public fullnode on a local network and connect to either
         <div class="card-body">
           <h2 class="card-title">Fullnode</h2>
           <p class="card-text">
-            A section with detailed, step-by-step instructions on everything fullnode. 
+            A section with detailed, step-by-step instructions on everything related to Aptos fullnode. 
           </p>
         </div>
         <div class="list-group list-group-flush">
