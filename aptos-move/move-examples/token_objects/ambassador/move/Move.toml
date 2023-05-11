@@ -3,7 +3,7 @@ name = 'ambassador_token'
 version = '1.0.0'
 
 [addresses]
-token_objects = "_"
+token_objects = "0xABCD"
 
 [dependencies]
 AptosFramework = { local = "../../../../framework/aptos-framework" }
