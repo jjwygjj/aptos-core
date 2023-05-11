@@ -13,7 +13,11 @@ Also learn how to run a public fullnode on a local network and connect to either
 
 
 ## Validator operations
-
+<style>
+  .list-group-item small {
+    color: black;
+  }
+</style>
 <div class="docs-card-container">
   <div class="row row-cols-1 row-cols-md-2a g-4">
     <div class="col">
@@ -42,7 +46,7 @@ Also learn how to run a public fullnode on a local network and connect to either
           </div>
           <a href="../concepts/staking" class="list-group-item">
             <div class="d-flex w-100 justify-content-between">
-              <h4 class="mb-1">Staking on Aptos (concept)</h4>
+              <h4 class="mb-1">Staking on Aptos</h4>
             </div>
             <small>A comprehensive guide to how staking works on Aptos.</small>
           </a>
