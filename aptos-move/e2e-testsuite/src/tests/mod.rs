@@ -20,6 +20,7 @@ mod execution_strategies;
 mod failed_transaction_tests;
 mod genesis;
 mod genesis_initializations;
+mod invariant_violation;
 mod mint;
 mod module_publishing;
 mod on_chain_configs;

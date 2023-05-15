@@ -825,6 +825,18 @@ impl TransactionStatus {
             _ => Err(format_err!("Not Keep.")),
         }
     }
+
+    pub fn translate_invariant_violation(self, charge_invariant_violation: bool) -> Self {
+       if let TransactionStatus::Discard(status) = &self {
+            if status.status_type() == StatusType::InvariantViolation && charge_invariant_violation {
+                Self::Keep(ExecutionStatus::MiscellaneousError(Some(*status)))
+            } else {
+                self
+            }
+        } else {
+            self
+        }
+    }
 }
 
 impl From<VMStatus> for TransactionStatus {

@@ -7152,6 +7152,7 @@ dependencies = [
  "aptos-vm-logging",
  "aptos-writeset-generator",
  "bcs 0.1.4 (git+https://github.com/aptos-labs/bcs.git?rev=d31fab9d81748e2594be5cd5cdf845786a30562d)",
+ "fail 0.5.0",
  "itertools",
  "move-binary-format",
  "move-bytecode-verifier",
