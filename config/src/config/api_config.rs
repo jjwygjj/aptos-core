@@ -69,6 +69,9 @@ pub struct ApiConfig {
     pub runtime_worker_multiplier: usize,
     /// The number of transactions for blocks to be classified as full for gas estimation
     pub gas_estimation_full_block_txns: usize,
+    // TODO: Move this to use the onchain config introduced in AIP-33
+    /// The amount of gas used for blocks to be classified as full for gas estimation
+    pub gas_estimation_full_block_gas_used: u64,
 }
 
 pub const DEFAULT_ADDRESS: &str = "127.0.0.1";
@@ -113,6 +116,7 @@ impl Default for ApiConfig {
             max_runtime_workers: None,
             runtime_worker_multiplier: 2,
             gas_estimation_full_block_txns: 250,
+            gas_estimation_full_block_gas_used: 1000000,
         }
     }
 }

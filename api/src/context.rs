@@ -902,22 +902,31 @@ impl Context {
         // 2. Get gas prices per block
         let mut min_inclusion_prices = vec![];
         let full_block_txns = self.node_config.api.gas_estimation_full_block_txns;
+        let full_block_gas_used = self.node_config.api.gas_estimation_full_block_gas_used;
         // TODO: if multiple calls to db is a perf issue, combine into a single call and then split
         for (first, last) in blocks {
-            let min_inclusion_price =
-                match self
-                    .db
-                    .get_gas_prices(first, last - first, ledger_info.ledger_version.0)
-                {
-                    Ok(prices) => {
-                        if prices.len() < full_block_txns {
-                            min_gas_unit_price
-                        } else {
-                            prices.iter().min().unwrap() + 1
-                        }
-                    },
-                    Err(_) => min_gas_unit_price,
-                };
+            let min_inclusion_price = match self.db.get_gas_prices_and_used(
+                first,
+                last - first,
+                ledger_info.ledger_version.0,
+            ) {
+                Ok(prices_and_used) => {
+                    if prices_and_used.len() < full_block_txns
+                        && prices_and_used.iter().map(|(_, used)| *used).sum::<u64>()
+                            < full_block_gas_used
+                    {
+                        min_gas_unit_price
+                    } else {
+                        prices_and_used
+                            .iter()
+                            .map(|(price, _)| *price)
+                            .min()
+                            .unwrap()
+                            + 1
+                    }
+                },
+                Err(_) => min_gas_unit_price,
+            };
             min_inclusion_prices.push(min_inclusion_price);
             cache
                 .min_inclusion_prices
