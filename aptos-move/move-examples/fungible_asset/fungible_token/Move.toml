@@ -8,5 +8,5 @@ aptos_token_objects = "0x4"
 fungible_token = "_"
 
 [dependencies]
-AptosFramework = { local = "../../framework/aptos-framework" }
-AptosTokenObjects = { local = "../../framework/aptos-token-objects" }
+AptosFramework = { local = "../../../framework/aptos-framework" }
+AptosTokenObjects = { local = "../../../framework/aptos-token-objects" }

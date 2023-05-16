@@ -5,7 +5,7 @@
 /// 1. Mint fungible assets as the owner of metadata object.
 /// 2. Transfer fungible assets as the owner of metadata object ignoring `frozen` field.
 /// 3. Burn fungible assets as the owner of metadata object.
-module fungible_asset_extension::managed_fungible_asset {
+module fa_example::managed_fungible_asset {
     use aptos_framework::fungible_asset::{Self, MintRef, TransferRef, BurnRef, FungibleAsset, Metadata};
     use aptos_framework::object::{Self, Object, ConstructorRef};
     use aptos_framework::primary_fungible_store;

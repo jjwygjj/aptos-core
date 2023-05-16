@@ -1,7 +1,7 @@
 /// A 2-in-1 module that combines managed_fungible_asset and coin_example into one module that when deployed, the
 /// deployer will be creating a new managed fungible asset with the hardcoded supply config, name, symbol, and decimals.
 /// The address of the asset can be obtained via get_metadata().
-module fungible_asset_extension::managed_coin {
+module fa_example::managed_coin {
     use aptos_framework::fungible_asset::{Self, MintRef, TransferRef, BurnRef, Metadata, FungibleAsset};
     use aptos_framework::object::{Self, Object};
     use aptos_framework::primary_fungible_store;
@@ -49,7 +49,7 @@ module fungible_asset_extension::managed_coin {
     #[view]
     /// Return the address of the managed fungible asset that's created when this module is deployed.
     public fun get_metadata(): Object<Metadata> {
-        let asset_address = object::create_object_address(&@fungible_asset_extension, ASSET_SYMBOL);
+        let asset_address = object::create_object_address(&@fa_example, ASSET_SYMBOL);
         object::address_to_object<Metadata>(asset_address)
     }
 
@@ -121,7 +121,7 @@ module fungible_asset_extension::managed_coin {
         borrow_global<ManagedFungibleAsset>(object::object_address(&asset))
     }
 
-    #[test(creator = @0xcafe)]
+    #[test(creator = @fa_example)]
     fun test_basic_flow(
         creator: &signer,
     ) acquires ManagedFungibleAsset {
@@ -142,7 +142,7 @@ module fungible_asset_extension::managed_coin {
         burn(creator, creator_address, 90);
     }
 
-    #[test(creator = @0xcafe, aaron = @0xface)]
+    #[test(creator = @fa_example, aaron = @0xface)]
     #[expected_failure(abort_code = 0x50001, location = Self)]
     fun test_permission_denied(
         creator: &signer,

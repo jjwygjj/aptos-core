@@ -1,9 +1,9 @@
 /// A coin example using managed_fungible_asset to create a fungible "coin".
-module fungible_asset_extension::coin_example {
+module fa_example::coin_example {
     use aptos_framework::object;
     use aptos_framework::fungible_asset::{Metadata, FungibleAsset};
     use aptos_framework::object::Object;
-    use fungible_asset_extension::managed_fungible_asset;
+    use fa_example::managed_fungible_asset;
     use std::string::utf8;
 
     const ASSET_SYMBOL: vector<u8> = b"YOLO";
@@ -13,7 +13,6 @@ module fungible_asset_extension::coin_example {
         let constructor_ref = &object::create_named_object(admin, ASSET_SYMBOL);
         managed_fungible_asset::initialize(
             constructor_ref,
-            false,
             0, /* maximum_supply. 0 means no maximum */
             utf8(b"You only live once"), /* name */
             utf8(ASSET_SYMBOL), /* symbol */
@@ -25,7 +24,7 @@ module fungible_asset_extension::coin_example {
     #[view]
     /// Return the address of the metadata that's created when this module is deployed.
     public fun get_metadata(): Object<Metadata> {
-        let metadata_address = object::create_object_address(&@fungible_asset_extension, ASSET_SYMBOL);
+        let metadata_address = object::create_object_address(&@fa_example, ASSET_SYMBOL);
         object::address_to_object<Metadata>(metadata_address)
     }
 
@@ -69,7 +68,7 @@ module fungible_asset_extension::coin_example {
     #[test_only]
     use std::signer;
 
-    #[test(creator = @0xcafe)]
+    #[test(creator = @fa_example)]
     fun test_basic_flow(creator: &signer) {
         init_module(creator);
         let creator_address = signer::address_of(creator);
@@ -88,8 +87,8 @@ module fungible_asset_extension::coin_example {
         burn(creator, creator_address, 90);
     }
 
-    #[test(creator = @0xcafe, aaron = @0xface)]
-    #[expected_failure(abort_code = 0x50001, location = fungible_asset_extension::managed_fungible_asset)]
+    #[test(creator = @fa_example, aaron = @0xface)]
+    #[expected_failure(abort_code = 0x50001, location = fa_example::managed_fungible_asset)]
     fun test_permission_denied(creator: &signer, aaron: &signer) {
         init_module(creator);
         let creator_address = signer::address_of(creator);
