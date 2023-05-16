@@ -106,6 +106,11 @@ fn test_message_board() {
 }
 
 #[test]
+fn test_fungible_asset() {
+    test_common("fungible_asset_extension");
+}
+
+#[test]
 fn test_mint_nft() {
     let addr = AccountAddress::from_hex_literal("0xcafe").unwrap();
     let named_address = BTreeMap::from([
