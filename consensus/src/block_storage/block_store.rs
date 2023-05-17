@@ -540,13 +540,13 @@ impl BlockStore {
         }
 
         let latency_to_committed = latency_from_proposal(proposal_timestamp, committed_timestamp);
+        let latency_to_ordered = latency_from_proposal(proposal_timestamp, ordered_timestamp);
 
         info!(
             pending_rounds = pending_rounds,
             ordered_round = ordered_round,
             commit_round = commit_round,
-            latency_to_ordered_ms =
-                latency_from_proposal(proposal_timestamp, ordered_timestamp).as_millis() as u64,
+            latency_to_ordered_ms = latency_to_ordered.as_millis() as u64,
             latency_to_committed_ms = latency_to_committed.as_millis() as u64,
             latency_to_commit_cert_ms =
                 latency_from_proposal(proposal_timestamp, commit_cert_timestamp).as_millis() as u64,
@@ -556,7 +556,7 @@ impl BlockStore {
         counters::CONSENSUS_PROPOSAL_PENDING_ROUNDS.observe(pending_rounds as f64);
         counters::CONSENSUS_PROPOSAL_PENDING_DURATION.observe(latency_to_committed.as_secs_f64());
 
-        latency_to_committed
+        latency_to_committed.saturating_sub(latency_to_ordered_ms)
     }
 }
 
