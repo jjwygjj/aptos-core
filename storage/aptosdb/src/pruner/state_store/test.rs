@@ -38,7 +38,7 @@ fn put_value_set(
         .iter()
         .map(|(key, value)| {
             sharded_value_set[key.get_shard_id() as usize].insert(key.clone(), Some(value.clone()));
-            (key.clone(), Some(value.clone()))
+            (key, Some(value))
         })
         .collect();
     let jmt_updates = jmt_updates(&value_set);
@@ -90,11 +90,14 @@ fn create_state_merkle_pruner_manager(
     state_merkle_db: &Arc<StateMerkleDb>,
     prune_batch_size: usize,
 ) -> StateMerklePrunerManager<StaleNodeIndexSchema> {
-    StateMerklePrunerManager::new(Arc::clone(state_merkle_db), StateMerklePrunerConfig {
-        enable: true,
-        prune_window: 0,
-        batch_size: prune_batch_size,
-    })
+    StateMerklePrunerManager::new(
+        Arc::clone(state_merkle_db),
+        StateMerklePrunerConfig {
+            enable: true,
+            prune_window: 0,
+            batch_size: prune_batch_size,
+        },
+    )
 }
 
 #[test]
@@ -355,11 +358,14 @@ fn test_worker_quit_eagerly() {
         let state_merkle_pruner = pruner_utils::create_state_merkle_pruner::<StaleNodeIndexSchema>(
             Arc::clone(&aptos_db.state_merkle_db),
         );
-        let worker = StateMerklePrunerWorker::new(state_merkle_pruner, StateMerklePrunerConfig {
-            enable: true,
-            prune_window: 1,
-            batch_size: 100,
-        });
+        let worker = StateMerklePrunerWorker::new(
+            state_merkle_pruner,
+            StateMerklePrunerConfig {
+                enable: true,
+                prune_window: 1,
+                batch_size: 100,
+            },
+        );
         worker.set_target_db_version(/*target_db_version=*/ 1);
         worker.set_target_db_version(/*target_db_version=*/ 2);
         // Worker quits immediately.
@@ -389,12 +395,15 @@ fn verify_state_value_pruner(inputs: Vec<Vec<(StateKey, Option<StateValue>)>>) {
 
     let mut version = 0;
     let mut current_state_values = HashMap::new();
-    let pruner = StateKvPrunerManager::new(Arc::clone(&db.state_kv_db), LedgerPrunerConfig {
-        enable: true,
-        prune_window: 0,
-        batch_size: 1,
-        user_pruning_window_offset: 0,
-    });
+    let pruner = StateKvPrunerManager::new(
+        Arc::clone(&db.state_kv_db),
+        LedgerPrunerConfig {
+            enable: true,
+            prune_window: 0,
+            batch_size: 1,
+            user_pruning_window_offset: 0,
+        },
+    );
     for batch in inputs {
         update_store(store, batch.clone().into_iter(), version);
         for (k, v) in batch.iter() {
