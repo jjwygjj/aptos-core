@@ -1111,12 +1111,12 @@ impl AptosVM {
                     );
                 }
 
-                let txn_status = TransactionStatus::from(err.clone())
-                    .translate_invariant_violation(
-                        self.0
-                            .get_features()
-                            .is_enabled(FeatureFlag::CHARGE_INVARIANT_VIOLATION),
-                    );
+                let txn_status = TransactionStatus::from_vm_status(
+                    err.clone(),
+                    self.0
+                        .get_features()
+                        .is_enabled(FeatureFlag::CHARGE_INVARIANT_VIOLATION),
+                );
                 if txn_status.is_discarded() {
                     discard_error_vm_status(err)
                 } else {

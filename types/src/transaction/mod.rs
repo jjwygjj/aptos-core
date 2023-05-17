@@ -848,6 +848,12 @@ impl TransactionStatus {
     }
 }
 
+impl From<VMStatus> for TransactionStatus {
+    fn from(vm_status: VMStatus) -> Self {
+        TransactionStatus::from_vm_status(vm_status, true)
+    }
+}
+
 impl From<ExecutionStatus> for TransactionStatus {
     fn from(txn_execution_status: ExecutionStatus) -> Self {
         TransactionStatus::Keep(txn_execution_status)
