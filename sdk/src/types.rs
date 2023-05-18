@@ -69,6 +69,18 @@ impl LocalAccount {
         })
     }
 
+    pub fn from_private_key(private_key_bytes: &[u8], sequence_number: u64) -> Result<Self> {
+        let private_key = Ed25519PrivateKey::try_from(private_key_bytes)?;
+        let key = AccountKey::from_private_key(private_key);
+        let address = key.authentication_key().derived_address();
+
+        Ok(Self {
+            address,
+            key,
+            sequence_number,
+        })
+    }
+
     /// Generate a new account locally. Note: This function does not actually
     /// create an account on the Aptos blockchain, it just generates a new
     /// account locally.
